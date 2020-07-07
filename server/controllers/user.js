@@ -67,12 +67,11 @@ const login = async (req, res) => {
 
   res.header('user-token', token).json({
     error: null,
+    message: 'Successful login',
     data: {
       token,
     },
   })
-
-  return res.status(200).json({ message: 'Successful Login' })
 }
 
 // Update information
