@@ -1,12 +1,12 @@
 {
-  "name": "Paycheck-Tracker",
+  "name": "paycheck-tracker",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node dist/app.js",
     "build": "babel server --out-dir dist",
-    "devstart": "nodemon --exec babel-node server/app.js"
+    "dev": "nodemon --exec babel-node server/app.js"
   },
   "keywords": [],
   "author": "Daniel De La O <daniel.dela000@gmail.com>",

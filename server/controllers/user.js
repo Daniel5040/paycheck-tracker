@@ -4,10 +4,14 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import validate from '../validation/user'
 
-const getId = async (req, res) => {
+const getInfo = async (req, res) => {
   const user = await User.findOne({ email: req.params.email })
 
-  return res.status(200).json({ id: user._id })
+  return res.status(200).json({
+    id: user._id,
+    name: user.name,
+    wage: user.wage,
+  })
 }
 
 // Register new user
@@ -75,30 +79,44 @@ const login = async (req, res) => {
 }
 
 // Update information
-const update = async (req, res) => {
+const updateInfo = async (req, res) => {
   // Validate user
-  const { error } = validate.updateValidation(req.body)
+  const { error } = validate.updateInfoValidation(req.body)
   if (error) return res.status(400).json({ error: error.details[0].message })
 
   const user = await User.findById(req.params.id)
   if (!user) res.status(400).json({ error: 'User not found' })
 
-  // Check if new password
-  let password = ''
-  const passwordCheck = await bcrypt.compare(req.body.password, user.password)
-  if (!passwordCheck) {
-    const salt = await bcrypt.genSalt(10)
-    password = await bcrypt.hash(req.body.password, salt)
-  } else {
-    password = user.password
-  }
+  // Check password
+  const validPassword = await bcrypt.compare(req.body.password, user.password)
+  if (!validPassword) return res.status(401).json({ error: 'Invalid password' })
 
   try {
     const updatedUser = await User.findByIdAndUpdate(req.params.id, {
       name: req.body.name,
-      password,
       wage: req.body.wage,
     })
+    res.status(200).json({ error: null, data: updatedUser })
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+}
+
+// Update password
+const updatePassword = async (req, res) => {
+  // Validate user
+  const { error } = validate.updatePasswordValidation(req.body)
+  if (error) return res.status(400).json({ error: error.details[0].message })
+
+  const user = await User.findById(req.params.id)
+  if (!user) res.status(400).json({ error: 'User not found' })
+
+  // Hash password
+  const salt = await bcrypt.genSalt(10)
+  const password = await bcrypt.hash(req.body.password, salt)
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { password: password })
     res.status(200).json({ error: null, data: updatedUser })
   } catch (error) {
     res.status(400).json({ error })
@@ -115,4 +133,4 @@ const deleteUser = async (req, res) => {
   }
 }
 
-export { getId, register, login, update, deleteUser }
+export { getInfo, register, login, updateInfo, updatePassword, deleteUser }
