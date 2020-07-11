@@ -34,6 +34,7 @@ const register = async (req, res) => {
     email: req.body.email,
     password,
     wage: req.body.wage,
+    createdAt: new Date(),
   })
 
   try {

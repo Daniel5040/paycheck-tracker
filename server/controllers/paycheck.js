@@ -61,6 +61,7 @@ const updatePaycheck = async (req, res) => {
     'days-worked': req.body.days,
     credit: req.body.credit,
     cash: req.body.cash,
+    createdAt: new Date(),
   }
 
   // Update paycheck or send error

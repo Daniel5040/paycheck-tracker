@@ -7,6 +7,7 @@ const workDaySchema = new mongoose.Schema({
   cash: { type: Number, required: true, default: 0 },
   paycheck: { type: mongoose.Schema.Types.ObjectId, ref: 'Paycheck' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdAt: Date,
 })
 
 export default mongoose.model('WorkDay', workDaySchema)

@@ -43,6 +43,7 @@ const createWorkDay = async (req, res) => {
     cash: req.body.cash,
     paycheck: req.body.paycheck,
     user: req.body.user,
+    createdAt: new Date(),
   })
 
   // save user or send error
