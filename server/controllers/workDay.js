@@ -1,32 +1,31 @@
 import WorkDay from '../models/workDay'
-import Paycheck from '../models/paycheck'
 import validate from '../validation/workDay'
 
 // Get a list of workdays for a paycheck
 const getPaycheckWorkDays = async (req, res) => {
   try {
-    const workdays = await WorkDay.find({ paycheck: req.params.paycheckId })
+    const workdays = await WorkDay.find({ paycheck: req.params.id })
 
     // If no workdays found
     if (!workdays) return res.status(404).json({ error: 'No workdays found' })
 
-    return res.status(200).json({ workdays })
+    res.status(200).json({ workdays })
   } catch (error) {
-    return res.status(400).json({ error })
+    res.status(400).json({ error })
   }
 }
 
 // Get individual workday
 const getWorkDay = async (req, res) => {
   try {
-    const workday = await WorkDay.findById(req.params.workdayId)
+    const workday = await WorkDay.findById(req.params.id)
 
     // If no workday found
     if (!workday) return res.status(404).json({ error: 'Workday not found' })
 
-    return res.status(200).json({ workday })
+    res.status(200).json({ workday })
   } catch (error) {
-    return res.status(400).json({ error })
+    res.status(400).json({ error })
   }
 }
 
@@ -81,7 +80,7 @@ const updateWorkDay = async (req, res) => {
 // Delete workday
 const deleteWorkDay = async (req, res) => {
   try {
-    const deleteWorkDay = await WorkDay.findOneAndRemove(req.params.id)
+    const deleteWorkDay = await WorkDay.findByIdAndRemove(req.params.id)
     res.status(200).json({ error: null, message: 'Work Day deleted', data: deleteWorkDay })
   } catch (error) {
     res.status(400).json({ error })
