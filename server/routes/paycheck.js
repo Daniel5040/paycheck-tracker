@@ -7,7 +7,7 @@ const router = Router()
 router.post('/create', paycheck.createPaycheck)
 
 // Get list of Paychecks
-router.get('/paychecks', paycheck.getPaychecks)
+router.get('/user/:id', paycheck.getPaychecks)
 
 // Update Paycheck
 router.put('/update/:id', paycheck.updatePaycheck)

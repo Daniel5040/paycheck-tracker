@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import express from 'express'
 import routes from './routes/index'
-import verifyToken from './middleware/validate-token'
+import { verifyToken } from './middleware/validate-token'
 
 // Establish connection with mongoDB
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false })
@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }))
 // Routes
 app.use('/api/user', routes.userRoutes)
 app.use('/api/workday', verifyToken, routes.workDayRoutes)
-app.use('/api/paychec', verifyToken, routes.paycheckRoutes)
+app.use('/api/paycheck', verifyToken, routes.paycheckRoutes)
 
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log(`>Server started on port ${port}`))

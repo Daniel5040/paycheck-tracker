@@ -7,7 +7,7 @@ const router = Router()
 router.post('/create', workDay.createWorkDay)
 
 // Get list of Worked Days per peycheck
-router.get('/daysworked/:id', workDay.getPaycheckWorkDays)
+router.get('/paycheck/:id', workDay.getPaycheckWorkDays)
 
 // Update Work Day
 router.put('/update/:id', workDay.updateWorkDay)

@@ -9,7 +9,7 @@ const getPaychecks = async (req, res) => {
     // If no paychecks found
     if (!paychecks) return res.status(404).json({ error: 'No paychecks found' })
 
-    res.status(200).json({ paychecks })
+    res.status(200).json(paychecks)
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -23,7 +23,7 @@ const getPaycheck = async (req, res) => {
     // if no paycheck found
     if (!paycheck) return res.status(404).json({ error: 'Paycheck not found' })
 
-    res.status(200).json({ paycheck })
+    res.status(200).json(paycheck)
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -31,16 +31,12 @@ const getPaycheck = async (req, res) => {
 
 // Create new paycheck
 const createPaycheck = async (req, res) => {
-  // Validate req body
-  const { error } = validate.createValidation(req.body)
-  if (error) return res.status(400).json({ error: error.details[0].message })
-
   // Create paycheck
   const paycheck = new Paycheck({
     active: true,
     'days-worked': 0,
-    credit: req.body.credit,
-    cash: req.body.cash,
+    credit: 0,
+    cash: 0,
     user: req.body.user,
   })
 
@@ -69,8 +65,8 @@ const updatePaycheck = async (req, res) => {
 
   // Update paycheck or send error
   try {
-    const updatedPaycheck = await Paycheck.findByIdAndUpdate(req.params.id, body)
-    res.status(200).json({ error: null, data: updatedPaycheck })
+    await Paycheck.findByIdAndUpdate(req.params.id, body)
+    res.status(200).json({ error: null, message: 'Paycheck updated' })
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -79,8 +75,8 @@ const updatePaycheck = async (req, res) => {
 // Delete paycheck
 const deletePaycheck = async (req, res) => {
   try {
-    const deletePaycheck = await Paycheck.findByIdAndRemove(req.params.id)
-    res.status(200).json({ error: null, message: 'Paycheck deleted', data: deletePaycheck })
+    await Paycheck.findByIdAndRemove(req.params.id)
+    res.status(200).json({ error: null, message: 'Paycheck deleted' })
   } catch (error) {
     res.status(400).json({ error })
   }

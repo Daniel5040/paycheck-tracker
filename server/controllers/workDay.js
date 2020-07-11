@@ -9,7 +9,7 @@ const getPaycheckWorkDays = async (req, res) => {
     // If no workdays found
     if (!workdays) return res.status(404).json({ error: 'No workdays found' })
 
-    res.status(200).json({ workdays })
+    res.status(200).json(workdays)
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -23,7 +23,7 @@ const getWorkDay = async (req, res) => {
     // If no workday found
     if (!workday) return res.status(404).json({ error: 'Workday not found' })
 
-    res.status(200).json({ workday })
+    res.status(200).json(workday)
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -70,8 +70,8 @@ const updateWorkDay = async (req, res) => {
 
   // Update workday or send error
   try {
-    const updatedWorkDay = await WorkDay.findByIdAndUpdate(req.params.id, body)
-    res.status(200).json({ error: null, data: updatedWorkDay })
+    await WorkDay.findByIdAndUpdate(req.params.id, body)
+    res.status(200).json({ error: null, message: 'Work Day updated' })
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -80,8 +80,8 @@ const updateWorkDay = async (req, res) => {
 // Delete workday
 const deleteWorkDay = async (req, res) => {
   try {
-    const deleteWorkDay = await WorkDay.findByIdAndRemove(req.params.id)
-    res.status(200).json({ error: null, message: 'Work Day deleted', data: deleteWorkDay })
+    await WorkDay.findByIdAndRemove(req.params.id)
+    res.status(200).json({ error: null, message: 'Work Day deleted' })
   } catch (error) {
     res.status(400).json({ error })
   }
