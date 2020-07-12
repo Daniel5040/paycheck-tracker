@@ -19,8 +19,6 @@ const updateValidation = (data) => {
     minutes: Joi.number().integer().min(0).max(60),
     credit: Joi.number().min(0),
     cash: Joi.number().min(0),
-    paycheck: Joi.string().required(),
-    user: Joi.string().required(),
   })
 
   return Schema.validate(data)

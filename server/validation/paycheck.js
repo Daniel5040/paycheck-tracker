@@ -1,14 +1,11 @@
 import Joi from '@hapi/joi'
 
-const updateValidation = (data) => {
+const closeValidation = (data) => {
   const Schema = Joi.object({
-    active: Joi.boolean(),
-    'days-worked': Joi.number().integer().min(0).max(14),
-    credit: Joi.number().min(0),
-    cash: Joi.number().min(0),
+    active: Joi.boolean().required(),
   })
 
   return Schema.validate(data)
 }
 
-export default { updateValidation }
+export default { closeValidation }

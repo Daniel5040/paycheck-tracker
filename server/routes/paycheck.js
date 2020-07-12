@@ -12,6 +12,9 @@ router.get('/user/:id', paycheck.getPaychecks)
 // Update Paycheck
 router.put('/update/:id', paycheck.updatePaycheck)
 
+// Close Paycheck
+router.put('/close/:id', paycheck.closePaycheck)
+
 // Delete Paycheck
 router.delete('/delete/:id', paycheck.deletePaycheck)
 

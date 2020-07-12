@@ -7,7 +7,7 @@ const getPaycheckWorkDays = async (req, res) => {
     const workdays = await WorkDay.find({ paycheck: req.params.id })
 
     // If no workdays found
-    if (!workdays) return res.status(404).json({ error: 'No workdays found' })
+    if (!workdays.length) return res.status(404).json({ error: 'No workdays found' })
 
     res.status(200).json(workdays)
   } catch (error) {
@@ -88,4 +88,10 @@ const deleteWorkDay = async (req, res) => {
   }
 }
 
-export default { getPaycheckWorkDays, getWorkDay, createWorkDay, updateWorkDay, deleteWorkDay }
+export default {
+  getPaycheckWorkDays,
+  getWorkDay,
+  createWorkDay,
+  updateWorkDay,
+  deleteWorkDay,
+}

@@ -1,4 +1,5 @@
 import Paycheck from '../models/paycheck'
+import WorkDay from '../models/workDay'
 import validate from '../validation/paycheck'
 
 // Get a list of paychecks
@@ -7,7 +8,7 @@ const getPaychecks = async (req, res) => {
     const paychecks = await Paycheck.find({ user: req.params.id })
 
     // If no paychecks found
-    if (!paychecks) return res.status(404).json({ error: 'No paychecks found' })
+    if (!paychecks.length) return res.status(404).json({ error: 'No paychecks found' })
 
     res.status(200).json(paychecks)
   } catch (error) {
@@ -34,10 +35,11 @@ const createPaycheck = async (req, res) => {
   // Create paycheck
   const paycheck = new Paycheck({
     active: true,
-    'days-worked': 0,
+    days: 0,
     credit: 0,
     cash: 0,
     user: req.body.user,
+    createdAt: new Date(),
   })
 
   // Save paycheck or send error
@@ -49,25 +51,45 @@ const createPaycheck = async (req, res) => {
   }
 }
 
-// UPdate paycheck
+// Update paycheck
 const updatePaycheck = async (req, res) => {
-  // Validate req body
-  const { error } = validate.updateValidation(req.body)
-  if (error) return res.status(400).json({ error: error.details[0].message })
+  // variable to change info
+  let body = {
+    days: 0,
+    credit: 0,
+    cash: 0,
+  }
 
-  // Update info
-  const body = {
-    active: req.body.active,
-    'days-worked': req.body.days,
-    credit: req.body.credit,
-    cash: req.body.cash,
-    createdAt: new Date(),
+  // Get list of workdays
+  const workdays = await WorkDay.find({ paycheck: req.params.id })
+  if (workdays) {
+    // update the amount of each member
+    workdays.forEach((workday) => {
+      body.credit += workday.credit
+      body.cash += workday.cash
+    })
+    body.days = workdays.length
   }
 
   // Update paycheck or send error
   try {
     await Paycheck.findByIdAndUpdate(req.params.id, body)
     res.status(200).json({ error: null, message: 'Paycheck updated' })
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+}
+
+// Close paycheck
+const closePaycheck = async (req, res) => {
+  // Validate req body
+  const { error } = validate.closeValidation(req.body)
+  if (error) return res.status(400).json({ error: error.details[0].messages })
+
+  // Close paycheck or send error
+  try {
+    await Paycheck.findByIdAndUpdate(req.params.id, { active: req.body.active })
+    res.status(200).json({ error: null, messages: 'Paycheck closed' })
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -83,4 +105,11 @@ const deletePaycheck = async (req, res) => {
   }
 }
 
-export default { getPaychecks, getPaycheck, createPaycheck, updatePaycheck, deletePaycheck }
+export default {
+  getPaychecks,
+  getPaycheck,
+  createPaycheck,
+  updatePaycheck,
+  closePaycheck,
+  deletePaycheck,
+}
