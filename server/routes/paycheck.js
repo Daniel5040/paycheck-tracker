@@ -9,14 +9,14 @@ router.post('/create', paycheck.createPaycheck)
 // Get list of Paychecks
 router.get('/user/:id', paycheck.getPaychecks)
 
-// Update Paycheck
-router.put('/update/:id', paycheck.updatePaycheck)
-
 // Close Paycheck
 router.put('/close/:id', paycheck.closePaycheck)
 
 // Delete Paycheck
 router.delete('/delete/:id', paycheck.deletePaycheck)
+
+// Update Paycheck
+router.put('/update/:id/:user', paycheck.updatePaycheck)
 
 // Get specific Paycheck
 router.get('/:id', paycheck.getPaycheck)

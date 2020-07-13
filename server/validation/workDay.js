@@ -2,8 +2,8 @@ import Joi from '@hapi/joi'
 
 const createValidation = (data) => {
   const Schema = Joi.object({
-    hours: Joi.number().integer().min(0).max(24).required(),
-    minutes: Joi.number().integer().min(0).max(60).required(),
+    start: Joi.date().required(),
+    end: Joi.date().required(),
     credit: Joi.number().min(0).required(),
     cash: Joi.number().min(0).required(),
     paycheck: Joi.string().required(),
@@ -15,8 +15,8 @@ const createValidation = (data) => {
 
 const updateValidation = (data) => {
   const Schema = Joi.object({
-    hours: Joi.number().integer().min(0).max(24),
-    minutes: Joi.number().integer().min(0).max(60),
+    start: Joi.date(),
+    end: Joi.date(),
     credit: Joi.number().min(0),
     cash: Joi.number().min(0),
   })

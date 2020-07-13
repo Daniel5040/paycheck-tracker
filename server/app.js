@@ -24,8 +24,8 @@ app.use(express.urlencoded({ extended: true }))
 
 // Routes
 app.use('/api/user', routes.userRoutes)
-app.use('/api/workday', verifyToken, routes.workDayRoutes)
-app.use('/api/paycheck', verifyToken, routes.paycheckRoutes)
+app.use('/api/workday', routes.workDayRoutes)
+app.use('/api/paycheck', routes.paycheckRoutes)
 
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log(`>Server started on port ${port}`))

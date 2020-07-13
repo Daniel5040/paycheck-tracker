@@ -1,5 +1,6 @@
 import Paycheck from '../models/paycheck'
 import WorkDay from '../models/workDay'
+import User from '../models/user'
 import validate from '../validation/paycheck'
 
 // Get a list of paychecks
@@ -36,6 +37,8 @@ const createPaycheck = async (req, res) => {
   const paycheck = new Paycheck({
     active: true,
     days: 0,
+    hours: 0,
+    ovetime: 0,
     credit: 0,
     cash: 0,
     user: req.body.user,
@@ -56,18 +59,34 @@ const updatePaycheck = async (req, res) => {
   // variable to change info
   let body = {
     days: 0,
+    hours: 0,
+    overtime: 0,
     credit: 0,
     cash: 0,
   }
+
+  // Get user
+  const user = await User.findById(req.params.user)
+  if (!user) return res.status(404).json({ error: 'User not found' })
 
   // Get list of workdays
   const workdays = await WorkDay.find({ paycheck: req.params.id })
   if (workdays) {
     // update the amount of each member
     workdays.forEach((workday) => {
+      // body.hours += workday.hours
+      body.hours += 5.5
       body.credit += workday.credit
       body.cash += workday.cash
     })
+    // Check for overtime
+    if (body.hours > 80) {
+      body.overtime = body.hours - 80
+      body.hours = 80
+    }
+
+    // Add hourly and overtime rate and set number of days
+    body.credit += user.wage * body.hours + user.wage * 1.5 * body.overtime
     body.days = workdays.length
   }
 

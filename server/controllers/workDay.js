@@ -37,8 +37,8 @@ const createWorkDay = async (req, res) => {
 
   // Create workday
   const workday = new WorkDay({
-    hours: req.body.hours,
-    minutes: req.body.minutes,
+    start: req.body.start,
+    end: req.body.end,
     credit: req.body.credit,
     cash: req.body.cash,
     paycheck: req.body.paycheck,
@@ -63,8 +63,8 @@ const updateWorkDay = async (req, res) => {
 
   // update info
   const body = {
-    hours: req.body.hours,
-    minutes: req.body.minutes,
+    start: req.body.start,
+    end: req.body.end,
     credit: req.body.credit,
     cash: req.body.cash,
   }
