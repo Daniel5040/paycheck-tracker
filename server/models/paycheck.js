@@ -1,7 +1,8 @@
 import mongoose from 'mongoose'
 
 const paycheckSchema = new mongoose.Schema({
-  active: { type: Boolean, required: true, default: true },
+  start: { type: Date, required: true },
+  end: { type: Date, required: true },
   days: { type: Number, required: true, default: 0 },
   hours: { type: Number, required: true, default: 0 },
   overtime: { type: Number, required: true, default: 0 },

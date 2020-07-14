@@ -1,11 +1,22 @@
 import Joi from '@hapi/joi'
 
-const closeValidation = (data) => {
+const createValidation = (data) => {
   const Schema = Joi.object({
-    active: Joi.boolean().required(),
+    start: Joi.date().required(),
+    end: Joi.date().required(),
+    user: Joi.string().required(),
   })
 
   return Schema.validate(data)
 }
 
-export default { closeValidation }
+const updateDate = (data) => {
+  const Schema = Joi.object({
+    start: Joi.date(),
+    end: Joi.date(),
+  })
+
+  return Schema.validate(data)
+}
+
+export default { createValidation, updateDate }

@@ -6,7 +6,7 @@ import validate from '../validation/paycheck'
 // Get a list of paychecks
 const getPaychecks = async (req, res) => {
   try {
-    const paychecks = await Paycheck.find({ user: req.params.id })
+    const paychecks = await Paycheck.find({ user: req.params.id }).sort({ start: 'desc' })
 
     // If no paychecks found
     if (!paychecks.length) return res.status(404).json({ error: 'No paychecks found' })
@@ -33,9 +33,14 @@ const getPaycheck = async (req, res) => {
 
 // Create new paycheck
 const createPaycheck = async (req, res) => {
+  // Validate req body
+  const { error } = validate.createValidation(req.body)
+  if (error) return res.status(400).json({ error: error.details[0].message })
+
   // Create paycheck
   const paycheck = new Paycheck({
-    active: true,
+    start: req.body.start,
+    end: req.body.end,
     days: 0,
     hours: 0,
     ovetime: 0,
@@ -49,6 +54,27 @@ const createPaycheck = async (req, res) => {
   try {
     const savedPaycheck = await paycheck.save()
     res.status(200).json({ error: null, data: savedPaycheck })
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+}
+
+// Update paycheck date
+const updateDate = async (req, res) => {
+  // Validate req body
+  const { error } = validate.updateDate(req.body)
+  if (error) return res.status(400).json({ error: error.details[0].message })
+
+  // update info
+  const body = {
+    start: req.body.start,
+    end: req.body.end,
+  }
+
+  // Update or send error
+  try {
+    await Paycheck.findByIdAndUpdate(req.params.id, body)
+    res.status(200).json({ error: null, message: 'Paycheck date updated' })
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -68,49 +94,56 @@ const updatePaycheck = async (req, res) => {
   // Get user
   const user = await User.findById(req.params.user)
   if (!user) return res.status(404).json({ error: 'User not found' })
+  // Get paycheck
+  const paycheck = await Paycheck.findById(req.params.id)
+  if (!paycheck) return res.status(404).json({ error: 'Paycheck not found' })
 
   // Get list of workdays
   const workdays = await WorkDay.find({ paycheck: req.params.id })
-  if (workdays) {
-    // update the amount of each member
-    workdays.forEach((workday) => {
-      // body.hours += workday.hours
-      body.hours += 5.5
-      body.credit += workday.credit
-      body.cash += workday.cash
-    })
-    // Check for overtime
-    if (body.hours > 80) {
-      body.overtime = body.hours - 80
-      body.hours = 80
+  if (workdays.length) {
+    // Separate paycheck into two weeks
+    const weekOne = workdays.filter((workday) => workday.start.getDate() < paycheck.start.getDate() + 7)
+    const weekTwo = workdays.filter((workday) => workday.start.getDate() >= paycheck.start.getDate() + 7)
+
+    if (weekOne.length) {
+      weekOne.forEach((day) => {
+        body.hours += day.hours
+        body.credit += day.credit
+        body.cash += day.cash
+      })
+      // Check for overtime
+      if (body.hours > 40) {
+        body.overtime += body.hours - 40
+        body.hours = 40
+      }
+    }
+
+    if (weekTwo.length) {
+      weekTwo.forEach((day) => {
+        body.hours += day.hours
+        body.credit += day.credit
+        body.cash += day.cash
+      })
+      // Check for overtime
+      if (body.hours > 80) {
+        body.overtime += body.hours - 80
+        body.hours = 80
+      }
     }
 
     // Add hourly and overtime rate and set number of days
-    body.credit += user.wage * body.hours + user.wage * 1.5 * body.overtime
+    body.credit += user.wage * (body.hours + 1.5 * body.overtime)
     body.days = workdays.length
-  }
 
-  // Update paycheck or send error
-  try {
-    await Paycheck.findByIdAndUpdate(req.params.id, body)
-    res.status(200).json({ error: null, message: 'Paycheck updated' })
-  } catch (error) {
-    res.status(400).json({ error })
-  }
-}
-
-// Close paycheck
-const closePaycheck = async (req, res) => {
-  // Validate req body
-  const { error } = validate.closeValidation(req.body)
-  if (error) return res.status(400).json({ error: error.details[0].messages })
-
-  // Close paycheck or send error
-  try {
-    await Paycheck.findByIdAndUpdate(req.params.id, { active: req.body.active })
-    res.status(200).json({ error: null, messages: 'Paycheck closed' })
-  } catch (error) {
-    res.status(400).json({ error })
+    // Update paycheck or send error
+    try {
+      await Paycheck.findByIdAndUpdate(req.params.id, body)
+      res.status(200).json({ error: null, message: 'Paycheck updated' })
+    } catch (error) {
+      res.status(400).json({ error })
+    }
+  } else {
+    res.status(404).json({ error: 'No workdays found' })
   }
 }
 
@@ -128,7 +161,7 @@ export default {
   getPaychecks,
   getPaycheck,
   createPaycheck,
+  updateDate,
   updatePaycheck,
-  closePaycheck,
   deletePaycheck,
 }

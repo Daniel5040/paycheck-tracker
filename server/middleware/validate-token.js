@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 
 // Middleware to validate token
 const verifyToken = (req, res, next) => {
-  const token = req.header('user-token')
+  const token = req.header('Authorization')
   if (!token) return res.status(401).json({ error: 'Access denied' })
 
   try {

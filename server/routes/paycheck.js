@@ -6,11 +6,11 @@ const router = Router()
 // Create new Paycheck
 router.post('/create', paycheck.createPaycheck)
 
+// Update paycheck date
+router.put('/update/date/:id', paycheck.updateDate)
+
 // Get list of Paychecks
 router.get('/user/:id', paycheck.getPaychecks)
-
-// Close Paycheck
-router.put('/close/:id', paycheck.closePaycheck)
 
 // Delete Paycheck
 router.delete('/delete/:id', paycheck.deletePaycheck)
