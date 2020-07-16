@@ -54,11 +54,11 @@ const login = async (req, res) => {
   const user = await User.findOne({ email: req.body.email })
 
   // Error if invalid email
-  if (!user) return res.status(401).json({ error: 'Invalid login' })
+  if (!user) return res.status(401).json({ error: 'Wrong email or password' })
 
   // Check password
   const validPassword = await bcrypt.compare(req.body.password, user.password)
-  if (!validPassword) return res.status(401).json({ error: 'Invalid login' })
+  if (!validPassword) return res.status(401).json({ error: 'Wrong email or password' })
 
   // Create token
   const token = jwt.sign(
