@@ -5,13 +5,17 @@ import jwt from 'jsonwebtoken'
 import validate from '../validation/user'
 
 const getInfo = async (req, res) => {
-  const user = await User.findOne({ email: req.params.email })
+  try {
+    const user = await User.findOne({ email: req.params.email })
 
-  return res.status(200).json({
-    id: user._id,
-    name: user.name,
-    wage: user.wage,
-  })
+    return res.status(200).json({
+      id: user._id,
+      name: user.name,
+      wage: user.wage,
+    })
+  } catch (error) {
+    return res.status(400).json({ error })
+  }
 }
 
 // Register new user

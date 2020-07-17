@@ -1,4 +1,5 @@
 import WorkDay from '../models/workDay'
+import Paycheck from '../models/paycheck'
 import validate from '../validation/workDay'
 
 // Get a list of workdays for a paycheck
@@ -35,6 +36,10 @@ const createWorkDay = async (req, res) => {
   const { error } = validate.createValidation(req.body)
   if (error) return res.status(400).json({ error: error.details[0].message })
 
+  // Find paycheck
+  const paycheck = Paycheck.findById(req.body.paycheck)
+  if (!paycheck) return res.status(404).json({ error: 'Paycheck not found' })
+
   // Create workday
   const workday = new WorkDay({
     start: req.body.start,
@@ -45,6 +50,9 @@ const createWorkDay = async (req, res) => {
     user: req.body.user,
     createdAt: new Date(),
   })
+
+  // Check that workday is within paycheck time
+  if (workday.start.getTime() < paycheck.start.getTime() || workday.start.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
 
   // save user or send error
   try {
@@ -61,6 +69,10 @@ const updateWorkDay = async (req, res) => {
   const { error } = validate.updateValidation(req.body)
   if (error) return res.status(400).json({ error: error.details[0].message })
 
+  // Find paycheck
+  const paycheck = Paycheck.findById(req.body.paycheck)
+  if (!paycheck) return res.status(404).json({ error: 'Paycheck not found' })
+
   // update info
   const body = {
     start: req.body.start,
@@ -68,6 +80,9 @@ const updateWorkDay = async (req, res) => {
     credit: req.body.credit,
     cash: req.body.cash,
   }
+
+  // Check that workday is within paycheck time
+  if (workday.start.getTime() < paycheck.start.getTime() || workday.start.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
 
   // Update workday or send error
   try {
