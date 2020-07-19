@@ -2,6 +2,7 @@ import Paycheck from '../models/paycheck'
 import WorkDay from '../models/workDay'
 import User from '../models/user'
 import validate from '../validation/paycheck'
+import helper from '../helper/calculateTotal'
 
 // Get a list of paychecks
 const getPaychecks = async (req, res) => {
@@ -37,6 +38,10 @@ const createPaycheck = async (req, res) => {
   const { error } = validate.createValidation(req.body)
   if (error) return res.status(400).json({ error: error.details[0].message })
 
+  // check updated time is valid
+  if (body.end.getTime() < body.start.getTime()) return res.status(400).json({ error: 'Paycheck cannot end before it starts' })
+  if (body.start.getTime() > body.end.getTime()) return res.status(400).json({ error: 'Paycheck cannot start after it ends' })
+
   // Create paycheck
   const paycheck = new Paycheck({
     start: req.body.start,
@@ -71,7 +76,10 @@ const updateDate = async (req, res) => {
     end: req.body.end,
   }
 
-  // Update or send error
+  // check updated time is valid
+  if (body.end.getTime() < body.start.getTime()) return res.status(400).json({ error: 'Paycheck cannot end before it starts' })
+  if (body.start.getTime() > body.end.getTime()) return res.status(400).json({ error: 'Paycheck cannot start after it ends' })
+
   try {
     await Paycheck.findByIdAndUpdate(req.params.id, body)
     res.status(200).json({ error: null, message: 'Paycheck date updated' })
@@ -101,39 +109,10 @@ const updatePaycheck = async (req, res) => {
   // Get list of workdays
   const workdays = await WorkDay.find({ paycheck: req.params.id })
   if (workdays.length) {
-    // Separate paycheck into two weeks
-    const weekOne = workdays.filter((workday) => workday.start.getDate() < paycheck.start.getDate() + 7)
-    const weekTwo = workdays.filter((workday) => workday.start.getDate() >= paycheck.start.getDate() + 7)
-
-    if (weekOne.length) {
-      weekOne.forEach((day) => {
-        body.hours += day.hours
-        body.credit += day.credit
-        body.cash += day.cash
-      })
-      // Check for overtime
-      if (body.hours > 40) {
-        body.overtime += body.hours - 40
-        body.hours = 40
-      }
-    }
-
-    if (weekTwo.length) {
-      weekTwo.forEach((day) => {
-        body.hours += day.hours
-        body.credit += day.credit
-        body.cash += day.cash
-      })
-      // Check for overtime
-      if (body.hours > 80) {
-        body.overtime += body.hours - 80
-        body.hours = 80
-      }
-    }
-
-    // Add hourly and overtime rate and set number of days
-    body.credit += user.wage * (body.hours + 1.5 * body.overtime)
-    body.days = workdays.length
+    // Separate paycheck into weeks
+    const weeks = helper.separateWeeks(workdays, paycheck)
+    // calculate total for each week
+    body = helper.total(workdays, weeks, body, user)
 
     // Update paycheck or send error
     try {

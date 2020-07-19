@@ -5,9 +5,8 @@ import validate from '../validation/workDay'
 // Get a list of workdays for a paycheck
 const getPaycheckWorkDays = async (req, res) => {
   try {
+    // find workdays
     const workdays = await WorkDay.find({ paycheck: req.params.id })
-
-    // If no workdays found
     if (!workdays.length) return res.status(404).json({ error: 'No workdays found' })
 
     res.status(200).json(workdays)
@@ -19,9 +18,8 @@ const getPaycheckWorkDays = async (req, res) => {
 // Get individual workday
 const getWorkDay = async (req, res) => {
   try {
+    // find workdays
     const workday = await WorkDay.findById(req.params.id)
-
-    // If no workday found
     if (!workday) return res.status(404).json({ error: 'Workday not found' })
 
     res.status(200).json(workday)
@@ -37,8 +35,12 @@ const createWorkDay = async (req, res) => {
   if (error) return res.status(400).json({ error: error.details[0].message })
 
   // Find paycheck
-  const paycheck = Paycheck.findById(req.body.paycheck)
+  const paycheck = await Paycheck.findById(req.body.paycheck)
   if (!paycheck) return res.status(404).json({ error: 'Paycheck not found' })
+
+  // Check that workday is within paycheck time
+  const workdayDate = new Date(req.body.start)
+  if (workdayDate.getTime() < paycheck.start.getTime() || workdayDate.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
 
   // Create workday
   const workday = new WorkDay({
@@ -51,10 +53,6 @@ const createWorkDay = async (req, res) => {
     createdAt: new Date(),
   })
 
-  // Check that workday is within paycheck time
-  if (workday.start.getTime() < paycheck.start.getTime() || workday.start.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
-
-  // save user or send error
   try {
     const savedWorkDay = await workday.save()
     res.status(200).json({ error: null, data: savedWorkDay })
@@ -70,8 +68,12 @@ const updateWorkDay = async (req, res) => {
   if (error) return res.status(400).json({ error: error.details[0].message })
 
   // Find paycheck
-  const paycheck = Paycheck.findById(req.body.paycheck)
+  const paycheck = await Paycheck.findById(req.body.paycheck)
   if (!paycheck) return res.status(404).json({ error: 'Paycheck not found' })
+
+  // Check that workday is within paycheck time
+  const workdayDate = new Date(req.body.start)
+  if (workdayDate.getTime() < paycheck.start.getTime() || workdayDate.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
 
   // update info
   const body = {
@@ -81,10 +83,6 @@ const updateWorkDay = async (req, res) => {
     cash: req.body.cash,
   }
 
-  // Check that workday is within paycheck time
-  if (workday.start.getTime() < paycheck.start.getTime() || workday.start.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
-
-  // Update workday or send error
   try {
     await WorkDay.findByIdAndUpdate(req.params.id, body)
     res.status(200).json({ error: null, message: 'Work Day updated' })
