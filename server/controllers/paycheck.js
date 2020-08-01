@@ -79,8 +79,10 @@ const updateDate = async (req, res) => {
   }
 
   // check updated time is valid
-  if (body.end.getTime() < body.start.getTime()) return res.status(400).json({ error: 'Paycheck cannot end before it starts' })
-  if (body.start.getTime() > body.end.getTime()) return res.status(400).json({ error: 'Paycheck cannot start after it ends' })
+  const start = new Date(req.body.start)
+  const end = new Date(req.body.end)
+  if (end.getTime() < start.getTime()) return res.status(400).json({ error: 'Paycheck cannot end before it starts' })
+  if (start.getTime() > end.getTime()) return res.status(400).json({ error: 'Paycheck cannot start after it ends' })
 
   try {
     await Paycheck.findByIdAndUpdate(req.params.id, body)
