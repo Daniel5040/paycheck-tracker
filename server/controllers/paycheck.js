@@ -39,8 +39,8 @@ const createPaycheck = async (req, res) => {
   if (error) return res.status(400).json({ error: error.details[0].message })
 
   // check updated time is valid
-  if (body.end.getTime() < body.start.getTime()) return res.status(400).json({ error: 'Paycheck cannot end before it starts' })
-  if (body.start.getTime() > body.end.getTime()) return res.status(400).json({ error: 'Paycheck cannot start after it ends' })
+  if (req.body.end.getTime() < req.body.start.getTime()) return res.status(400).json({ error: 'Paycheck cannot end before it starts' })
+  if (req.body.start.getTime() > req.body.end.getTime()) return res.status(400).json({ error: 'Paycheck cannot start after it ends' })
 
   // Create paycheck
   const paycheck = new Paycheck({
