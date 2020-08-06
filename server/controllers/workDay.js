@@ -6,7 +6,7 @@ import validate from '../validation/workDay'
 const getPaycheckWorkDays = async (req, res) => {
   try {
     // find workdays
-    const workdays = await WorkDay.find({ paycheck: req.params.id })
+    const workdays = await WorkDay.find({ paycheck: req.params.id }).sort({ start: 'desc' })
     if (!workdays.length) return res.status(404).json({ error: 'No workdays found' })
 
     res.status(200).json(workdays)
@@ -39,8 +39,11 @@ const createWorkDay = async (req, res) => {
   if (!paycheck) return res.status(404).json({ error: 'Paycheck not found' })
 
   // Check that workday is within paycheck time
-  const workdayDate = new Date(req.body.start)
-  if (workdayDate.getTime() < paycheck.start.getTime() || workdayDate.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
+  const start = new Date(req.body.start)
+  const end = new Date(req.body.end)
+  if (end.getTime() < start.getTime()) return res.status(400).json({ error: 'Workday cannot end before it starts' })
+  if (start.getTime() > end.getTime()) return res.status(400).json({ error: 'Workday cannot start after it ends' })
+  if (start.getTime() < paycheck.start.getTime() || start.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
 
   // Create workday
   const workday = new WorkDay({
@@ -72,8 +75,11 @@ const updateWorkDay = async (req, res) => {
   if (!paycheck) return res.status(404).json({ error: 'Paycheck not found' })
 
   // Check that workday is within paycheck time
-  const workdayDate = new Date(req.body.start)
-  if (workdayDate.getTime() < paycheck.start.getTime() || workdayDate.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
+  const start = new Date(req.body.start)
+  const end = new Date(req.body.end)
+  if (end.getTime() < start.getTime()) return res.status(400).json({ error: 'Workday cannot end before it starts' })
+  if (start.getTime() > end.getTime()) return res.status(400).json({ error: 'Workday cannot start after it ends' })
+  if (start.getTime() < paycheck.start.getTime() || start.getTime() > paycheck.end.getTime()) return res.status(400).json({ error: 'Cannot pick this date' })
 
   // update info
   const body = {
