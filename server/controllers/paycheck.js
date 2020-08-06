@@ -112,21 +112,17 @@ const updatePaycheck = async (req, res) => {
 
   // Get list of workdays
   const workdays = await WorkDay.find({ paycheck: req.params.id })
-  if (workdays.length) {
-    // Separate paycheck into weeks
-    const weeks = helper.separateWeeks(workdays, paycheck)
-    // calculate total for each week
-    body = helper.total(workdays, weeks, body, user)
+  // Separate paycheck into weeks
+  const weeks = helper.separateWeeks(workdays, paycheck)
+  // calculate total for each week
+  body = helper.total(workdays, weeks, body, user)
 
-    // Update paycheck or send error
-    try {
-      await Paycheck.findByIdAndUpdate(req.params.id, body)
-      res.status(200).json({ error: null, message: 'Paycheck updated' })
-    } catch (error) {
-      res.status(400).json({ error })
-    }
-  } else {
-    res.status(404).json({ error: 'No workdays found' })
+  // Update paycheck or send error
+  try {
+    await Paycheck.findByIdAndUpdate(req.params.id, body)
+    res.status(200).json({ error: null, message: 'Paycheck updated' })
+  } catch (error) {
+    res.status(400).json({ error })
   }
 }
 
