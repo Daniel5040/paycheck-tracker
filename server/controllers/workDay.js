@@ -7,7 +7,6 @@ const getPaycheckWorkDays = async (req, res) => {
   try {
     // find workdays
     const workdays = await WorkDay.find({ paycheck: req.params.id }).sort({ start: 'desc' })
-    if (!workdays.length) return res.status(404).json({ error: 'No workdays found' })
 
     res.status(200).json(workdays)
   } catch (error) {
