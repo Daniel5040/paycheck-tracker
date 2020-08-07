@@ -9,9 +9,6 @@ const getPaychecks = async (req, res) => {
   try {
     const paychecks = await Paycheck.find({ user: req.params.id }).sort({ start: 'desc' })
 
-    // If no paychecks found
-    if (!paychecks.length) return res.status(404).json({ error: 'No paychecks found' })
-
     res.status(200).json(paychecks)
   } catch (error) {
     res.status(400).json({ error })
