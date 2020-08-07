@@ -29,6 +29,8 @@ app.use('/api/paycheck', verifyToken, routes.paycheckRoutes)
 
 // Handle production
 if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(__dirname + '/public/'))
+
   // Handle Single Page Application
   app.get(/.*/, (req, res) => res.sendFile(__dirname + '/public/index.html'))
 }

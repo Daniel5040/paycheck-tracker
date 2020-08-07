@@ -42,7 +42,8 @@ app.use('/api/workday', _validateToken.verifyToken, _index.default.workDayRoutes
 app.use('/api/paycheck', _validateToken.verifyToken, _index.default.paycheckRoutes); // Handle production
 
 if (process.env.NODE_ENV === 'production') {
-  // Handle Single Page Application
+  app.use(_express.default.static(__dirname + '/public/')); // Handle Single Page Application
+
   app.get(/.*/, (req, res) => res.sendFile(__dirname + '/public/index.html'));
 }
 
