@@ -126,7 +126,14 @@ const updatePaycheck = async (req, res) => {
 // Delete paycheck
 const deletePaycheck = async (req, res) => {
   try {
+    // Delete all workdays associated with paycheck
+    const workdays = await WorkDay.find({ paycheck: req.params.id })
+    workdays.forEach(async (workday) => {
+      await WorkDay.findByIdAndRemove(workday._id)
+    })
+
     await Paycheck.findByIdAndRemove(req.params.id)
+
     res.status(200).json({ error: null, message: 'Paycheck deleted' })
   } catch (error) {
     res.status(400).json({ error })
