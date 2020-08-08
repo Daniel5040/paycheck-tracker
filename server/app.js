@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import express from 'express'
 import routes from './routes/index'
+import sslRedirect from 'heroku-ssl-redirect'
 import { verifyToken } from './middleware/validate-token'
 
 // Establish connection with mongoDB
@@ -21,6 +22,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(sslRedirect())
 
 // Routes
 app.use('/api/user', routes.userRoutes)
