@@ -22,7 +22,8 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(sslRedirect())
+// for Heroku production
+// app.use(sslRedirect())
 
 // Routes
 app.use('/api/user', routes.userRoutes)
