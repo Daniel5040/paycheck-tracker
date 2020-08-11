@@ -10,6 +10,8 @@ var _express = _interopRequireDefault(require("express"));
 
 var _index = _interopRequireDefault(require("./routes/index"));
 
+var _herokuSslRedirect = _interopRequireDefault(require("heroku-ssl-redirect"));
+
 var _validateToken = require("./middleware/validate-token");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -35,7 +37,8 @@ app.use((0, _cors.default)());
 app.use(_express.default.json());
 app.use(_express.default.urlencoded({
   extended: true
-})); // Routes
+}));
+app.use((0, _herokuSslRedirect.default)()); // Routes
 
 app.use('/api/user', _index.default.userRoutes);
 app.use('/api/workday', _validateToken.verifyToken, _index.default.workDayRoutes);
