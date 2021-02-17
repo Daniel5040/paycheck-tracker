@@ -32,7 +32,7 @@ A step by step series of examples that tell you how to get a development env run
 Clone the repository
 
 ```
-git clone https://github.com/Daniel5040/paycheck-tracker.git
+git clone https://github.com/danydlo/paycheck-tracker.git
 ```
 
 Move into project directory
